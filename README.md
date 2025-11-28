@@ -1,8 +1,8 @@
-# Ladon
+# LadonStack
 
 **GPU-Focused Monitoring and Observability Stack**
 
-Ladon is a comprehensive, standalone monitoring infrastructure designed for GPU-accelerated ML/AI workloads. It provides real-time visibility into NVIDIA GPU metrics, system performance, and ML model observability.
+LadonStack is a comprehensive, standalone monitoring infrastructure designed for GPU-accelerated ML/AI workloads. It provides real-time visibility into NVIDIA GPU metrics, system performance, and ML model observability.
 
 Named after the hundred-headed dragon that guarded the golden apples of the Hesperides in Greek mythology, Ladon vigilantly monitors all aspects of your GPU computing environment.
 
@@ -50,8 +50,8 @@ Named after the hundred-headed dragon that guarded the golden apples of the Hesp
 
 ```bash
 # Clone the repository
-git clone https://github.com/r3d91ll/Ladon.git
-cd Ladon
+git clone https://github.com/r3d91ll/LadonStack.git
+cd LadonStack
 
 # Start core services (without GPU monitoring)
 docker compose up -d
@@ -257,7 +257,7 @@ tracer_provider = register(
 ## Project Structure
 
 ```
-Ladon/
+LadonStack/
 ├── docker-compose.yml           # Main orchestration
 ├── monitoring.sh                # Management script
 ├── prometheus/
