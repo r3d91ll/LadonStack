@@ -1,7 +1,7 @@
 networks:
-  ladon:
+  ladonstack:
     driver: bridge
-    name: ladon
+    name: ladonstack
     ipam:
       config:
         - subnet: 172.28.0.0/16
@@ -26,7 +26,7 @@ services:
     profiles:
       - gpu
     networks:
-      - ladon
+      - ladonstack
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - DCGM_EXPORTER_LISTEN=:9400
@@ -53,7 +53,7 @@ services:
     container_name: prometheus
     restart: unless-stopped
     networks:
-      - ladon
+      - ladonstack
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
@@ -79,7 +79,7 @@ services:
     container_name: node-exporter
     restart: unless-stopped
     networks:
-      - ladon
+      - ladonstack
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -101,7 +101,7 @@ services:
     container_name: process-exporter
     restart: unless-stopped
     networks:
-      - ladon
+      - ladonstack
     privileged: true
     volumes:
       - ./prometheus/process-exporter.yml:/config/process-exporter.yml:ro
@@ -118,7 +118,7 @@ services:
     container_name: grafana
     restart: unless-stopped
     networks:
-      - ladon
+      - ladonstack
     volumes:
       - ladon_grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
@@ -146,7 +146,7 @@ services:
     container_name: arize-phoenix
     restart: unless-stopped
     networks:
-      - ladon
+      - ladonstack
     environment:
       - PHOENIX_WORKING_DIR=/mnt/data
     volumes:
