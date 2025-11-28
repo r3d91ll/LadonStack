@@ -2,7 +2,7 @@
 
 **GPU-Focused Monitoring and Observability Stack**
 
-LadonStack is a comprehensive, standalone monitoring infrastructure designed for GPU-accelerated ML/AI workloads. It provides real-time visibility into NVIDIA GPU metrics, system performance, and ML model observability.
+LadonStack the my prefered monitoring stack for GPU-accelerated ML/AI workloads. It provides real-time visibility into NVIDIA GPU metrics, system performance, and ML model observability.
 
 Named after the hundred-headed dragon that guarded the golden apples of the Hesperides in Greek mythology, Ladon vigilantly monitors all aspects of your GPU computing environment.
 
@@ -36,6 +36,20 @@ Named after the hundred-headed dragon that guarded the golden apples of the Hesp
 │                                          └──────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### A Note on Deployment Architecture
+
+**This is a "I spent all my budget on a Threadripper and can't afford another server" deployment.**
+
+In a production environment following best practices, you would typically:
+- Run **DCGM exporter** on each GPU server (lightweight, just exposes metrics)
+- Run **node_exporter** on each monitored host (standard Linux practice)
+- Deploy **Prometheus and Grafana** on a dedicated monitoring/logging server
+- Use proper service discovery or static configs to scrape remote targets
+
+This all-in-one deployment runs everything on the same machine—the GPU workstation itself. While this works and is certainly better than no monitoring at all, it means your monitoring stack competes for resources with your actual workloads and creates a single point of failure.
+
+**When hardware budgets allow**, consider separating concerns: exporters on compute nodes, aggregation and visualization on dedicated infrastructure. Until then, this stack provides solid observability for single-machine GPU workstations.
 
 ## Quick Start
 
