@@ -53,8 +53,11 @@ Named after the hundred-headed dragon that guarded the golden apples of the Hesp
 git clone https://github.com/r3d91ll/Ladon.git
 cd Ladon
 
-# Start all services
+# Start core services (without GPU monitoring)
 docker compose up -d
+
+# OR: Start with GPU monitoring (requires NVIDIA Container Toolkit)
+docker compose --profile gpu up -d
 
 # Check service status
 docker compose ps

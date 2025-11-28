@@ -17,10 +17,14 @@ volumes:
 services:
 
   # NVIDIA DCGM exporter for GPU metrics
+  # Requires NVIDIA Container Toolkit: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/
+  # Start with GPU support: docker compose --profile gpu up -d
   dcgm-exporter:
     image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.6-3.4.2-ubuntu22.04
     container_name: dcgm-exporter
     restart: unless-stopped
+    profiles:
+      - gpu
     networks:
       - ladon
     environment:
