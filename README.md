@@ -2,7 +2,7 @@
 
 ## A Note on Deployment Architecture
 
-**This is a "I spent all my budget on a Threadripper and can't afford another server" deployment.**
+**This is a home lage deployment and is not intended for production deployment**
 
 In a production environment following best practices, you would typically:
 
@@ -11,9 +11,7 @@ In a production environment following best practices, you would typically:
 - Deploy **Prometheus and Grafana** on a dedicated monitoring/logging server
 - Use proper service discovery or static configs to scrape remote targets
 
-This all-in-one deployment runs everything on the same machine—the GPU workstation itself. While this works and is certainly better than no monitoring at all, it means your monitoring stack competes for resources with your actual workloads and creates a single point of failure. Given that I am running with a Threadripper and most of my workload is on the GPUs it is not much of a problem for my system. Your mileage may vary.
-
-**When hardware budgets allow**, consider separating concerns: exporters on compute nodes, aggregation and visualization on dedicated infrastructure. Until then, this stack provides solid observability for single-machine GPU workstations.
+This all-in-one deployment runs everything on the same machine—the GPU workstation itself. While this works and is certainly better than no monitoring at all, it means your monitoring stack competes for resources with your actual workloads and creates a single point of failure. It is inteneded for HEDT and Workstation class machines with a high core count CPU and ample RAM with a primarily GPU bound workload. Your mileage may vary.
 
 ## Features
 
