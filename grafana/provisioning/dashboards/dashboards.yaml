@@ -1,0 +1,24 @@
+apiVersion: 1
+
+providers:
+  # Provisioned dashboards - read-only from files
+  - name: 'HADES Provisioned Dashboards'
+    type: file
+    disableDeletion: true
+    editable: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: true
+
+  # Custom dashboards - editable in UI
+  - name: 'Custom Dashboards'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/custom
+      foldersFromFilesStructure: true

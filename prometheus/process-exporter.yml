@@ -1,0 +1,19 @@
+process_names:
+  - name: "{{.Comm}}"
+    cmdline:
+    - '.+'
+
+  # Python processes for experiments
+  - name: "python-experiments"
+    cmdline:
+    - 'python.*experiments.*'
+
+  # Neo4j processes for GraphRAG
+  - name: "neo4j"
+    cmdline:
+    - 'neo4j.*'
+    
+  # Ollama processes
+  - name: "ollama"
+    cmdline:
+    - 'ollama.*'

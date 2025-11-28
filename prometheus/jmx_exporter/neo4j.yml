@@ -1,0 +1,10 @@
+---
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+whitelistObjectNames:
+  - "org.neo4j:*"
+rules:
+  - pattern: 'org.neo4j<name=(.+)><>(.+):'
+    name: neo4j_$2
+    labels:
+      name: $1

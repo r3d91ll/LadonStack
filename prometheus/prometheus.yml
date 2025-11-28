@@ -1,0 +1,77 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'ladon'
+
+# Alerting rules
+rule_files:
+  - "alert_rules.yml"
+
+# Scrape configuration
+scrape_configs:
+
+  # DCGM Exporter - NVIDIA GPU metrics
+  - job_name: 'dcgm'
+    static_configs:
+      - targets: ['dcgm-exporter:9400']
+        labels:
+          service: 'dcgm-exporter'
+          component: 'gpu'
+    scrape_interval: 10s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          component: 'monitoring'
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          component: 'system'
+    scrape_interval: 15s
+
+  # Process Exporter - Process metrics
+  - job_name: 'process-exporter'
+    static_configs:
+      - targets: ['process-exporter:9256']
+        labels:
+          service: 'process-exporter'
+          component: 'processes'
+
+  # ============================================================================
+  # Host Application Targets
+  # ============================================================================
+  # For applications running on the host (not in containers), use the Docker
+  # gateway IP or host.docker.internal. The gateway IP for the ladon network
+  # is typically 172.28.0.1.
+  #
+  # Example configurations:
+
+  # HADES API server (if running on host)
+  # Uncomment when HADES is running
+  # - job_name: 'hades-api'
+  #   static_configs:
+  #     - targets: ['172.28.0.1:8000']
+  #       labels:
+  #         service: 'hades-api'
+  #         component: 'api'
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 10s
+  #   scrape_timeout: 8s
+  #   honor_labels: true
+
+  # Custom Python application with prometheus_client
+  # - job_name: 'my-app'
+  #   static_configs:
+  #     - targets: ['172.28.0.1:8080']
+  #       labels:
+  #         service: 'my-app'
+  #         component: 'application'
+  #   metrics_path: '/metrics'

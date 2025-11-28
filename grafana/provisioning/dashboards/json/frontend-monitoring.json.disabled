@@ -1,0 +1,240 @@
+{
+  "dashboard": {
+    "title": "Conveyance Frontend - Multi-Agent Monitoring",
+    "tags": ["conveyance", "frontend", "multi-agent"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Fast-Path API Latency (AI Agents) - <10ms Target",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(conveyance_api_request_duration_seconds_bucket{service=\"fast-path-api\"}[5m])) * 1000",
+            "legendFormat": "p50 (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(conveyance_api_request_duration_seconds_bucket{service=\"fast-path-api\"}[5m])) * 1000",
+            "legendFormat": "p95 (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(conveyance_api_request_duration_seconds_bucket{service=\"fast-path-api\"}[5m])) * 1000",
+            "legendFormat": "p99 (ms)"
+          }
+        ],
+        "yaxes": [
+          {"label": "Latency (ms)", "format": "ms"},
+          {"show": false}
+        ],
+        "thresholds": [
+          {
+            "value": 10,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Request Rate by Agent Type",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(conveyance_api_requests_total{service=\"fast-path-api\"}[5m])",
+            "legendFormat": "{{agent_type}} - {{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Requests/sec", "format": "reqps"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "C_pair Computation Time",
+        "type": "heatmap",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(conveyance_c_pair_computation_duration_seconds_bucket[5m])",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "dataFormat": "tsbuckets",
+        "yAxis": {"format": "s", "decimals": 3}
+      },
+      {
+        "id": 4,
+        "title": "C_pair Score Distribution",
+        "type": "histogram",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(conveyance_c_pair_value_bucket[5m])",
+            "legendFormat": "{{le}}"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Geometric R Components",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, rate(conveyance_r_component_value_bucket{component=\"Q\"}[5m]))",
+            "legendFormat": "Q (modularity)"
+          },
+          {
+            "expr": "histogram_quantile(0.5, rate(conveyance_r_component_value_bucket{component=\"E\"}[5m]))",
+            "legendFormat": "E (efficiency)"
+          },
+          {
+            "expr": "histogram_quantile(0.5, rate(conveyance_r_component_value_bucket{component=\"T\"}[5m]))",
+            "legendFormat": "T (tangent)"
+          },
+          {
+            "expr": "histogram_quantile(0.5, rate(conveyance_r_component_value_bucket{component=\"Phi\"}[5m]))",
+            "legendFormat": "Φ (conductance)"
+          },
+          {
+            "expr": "histogram_quantile(0.5, rate(conveyance_r_component_value_bucket{component=\"kappa\"}[5m]))",
+            "legendFormat": "κ (curvature)"
+          }
+        ],
+        "yaxes": [
+          {"label": "Component Value", "format": "short", "min": 0, "max": 1},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Agent Detection Confidence",
+        "type": "piechart",
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(conveyance_agent_detections_total[5m])) by (detected_type, confidence_level)",
+            "legendFormat": "{{detected_type}} ({{confidence_level}})"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Next.js Page Load Times",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(conveyance_web_page_load_duration_seconds_bucket[5m])) * 1000",
+            "legendFormat": "p50 (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(conveyance_web_page_load_duration_seconds_bucket[5m])) * 1000",
+            "legendFormat": "p95 (ms)"
+          }
+        ],
+        "yaxes": [
+          {"label": "Load Time (ms)", "format": "ms"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Active WebSocket Connections",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "conveyance_web_active_websockets",
+            "legendFormat": "{{agent_type}}"
+          },
+          {
+            "expr": "conveyance_active_connections",
+            "legendFormat": "API: {{agent_type}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Connections", "format": "short"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Phoenix Trace Exports (OTLP)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 32, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(otelcol_exporter_sent_spans[5m])",
+            "legendFormat": "Spans exported"
+          }
+        ],
+        "yaxes": [
+          {"label": "Spans/sec", "format": "short"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Memory Interactions (Human UI)",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 32, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(conveyance_web_memory_interactions_total[5m])",
+            "legendFormat": "{{action}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Interactions/sec", "format": "short"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Error Rate by Service",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 40, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(conveyance_api_requests_total{status=~\"5..\"}[5m])",
+            "legendFormat": "{{service}} - {{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Errors/sec", "format": "short"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 12,
+        "title": "R Computation Duration",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 40, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(conveyance_r_computation_duration_seconds_bucket[5m])) * 1000",
+            "legendFormat": "p50 (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(conveyance_r_computation_duration_seconds_bucket[5m])) * 1000",
+            "legendFormat": "p95 (ms)"
+          }
+        ],
+        "yaxes": [
+          {"label": "Duration (ms)", "format": "ms"},
+          {"show": false}
+        ]
+      }
+    ],
+    "schemaVersion": 16,
+    "version": 1
+  }
+}

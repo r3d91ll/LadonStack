@@ -1,0 +1,29 @@
+[Unit]
+Description=NVMe SMART Metrics Exporter for Prometheus
+Documentation=https://github.com/olympus/Ladon
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment="METRICS_DIR=/var/lib/node_exporter"
+Environment="NVME_UPDATE_INTERVAL=30"
+ExecStart=/usr/bin/python3 /home/todd/olympus/Ladon/scripts/nvme_exporter.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/node_exporter
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=false
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

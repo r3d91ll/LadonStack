@@ -1,0 +1,469 @@
+{
+  "title": "NVMe Drive Monitoring",
+  "tags": [
+    "nvme",
+    "storage",
+    "health"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "NVMe Temperatures",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nvme_temperature_celsius",
+          "legendFormat": "{{device}} ({{model}})",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Temperature (\u00b0C)",
+          "format": "celsius",
+          "logBase": 1,
+          "min": 0,
+          "max": null
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "pointradius": 5,
+      "points": false,
+      "bars": false,
+      "stack": false,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "max": true,
+        "alignAsTable": true
+      },
+      "alert": {
+        "name": "NVMe High Temperature",
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                70
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "5m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "frequency": "1m",
+        "handler": 1,
+        "message": "NVMe drive temperature exceeds 70\u00b0C"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Data Read (TB)",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nvme_data_units_read_total * 512 / 1024 / 1024 / 1024 / 1024",
+          "legendFormat": "{{device}} ({{model}})",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Data Read (TB)",
+          "format": "decbytes",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "alignAsTable": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Data Written (TB)",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nvme_data_units_written_total * 512 / 1024 / 1024 / 1024 / 1024",
+          "legendFormat": "{{device}} ({{model}})",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Data Written (TB)",
+          "format": "decbytes",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "alignAsTable": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Read Rate",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(nvme_data_units_read_total[5m]) * 512 / 1024 / 1024",
+          "legendFormat": "{{device}} Read MB/s",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Read Rate (MB/s)",
+          "format": "MBs",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "avg": true,
+        "max": true,
+        "alignAsTable": true
+      }
+    },
+    {
+      "id": 5,
+      "title": "Write Rate",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(nvme_data_units_written_total[5m]) * 512 / 1024 / 1024",
+          "legendFormat": "{{device}} Write MB/s",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Write Rate (MB/s)",
+          "format": "MBs",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "avg": true,
+        "max": true,
+        "alignAsTable": true
+      }
+    },
+    {
+      "id": 6,
+      "title": "Drive Health Indicators",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "nvme_percentage_used",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "nvme_available_spare_percent",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        },
+        {
+          "expr": "nvme_critical_warning",
+          "format": "table",
+          "instant": true,
+          "refId": "C"
+        },
+        {
+          "expr": "nvme_media_errors_total",
+          "format": "table",
+          "instant": true,
+          "refId": "D"
+        },
+        {
+          "expr": "nvme_unsafe_shutdowns_total",
+          "format": "table",
+          "instant": true,
+          "refId": "E"
+        },
+        {
+          "expr": "nvme_power_on_hours_total",
+          "format": "table",
+          "instant": true,
+          "refId": "F"
+        }
+      ],
+      "styles": [
+        {
+          "pattern": "Time",
+          "type": "hidden"
+        },
+        {
+          "pattern": "device",
+          "type": "string",
+          "alias": "Device"
+        },
+        {
+          "pattern": "model",
+          "type": "string",
+          "alias": "Model"
+        },
+        {
+          "pattern": "serial",
+          "type": "string",
+          "alias": "Serial"
+        },
+        {
+          "pattern": "Value #A",
+          "type": "number",
+          "alias": "Endurance Used %",
+          "unit": "percent",
+          "thresholds": [
+            "80",
+            "90"
+          ],
+          "colorMode": "cell"
+        },
+        {
+          "pattern": "Value #B",
+          "type": "number",
+          "alias": "Available Spare %",
+          "unit": "percent",
+          "thresholds": [
+            "10",
+            "5"
+          ],
+          "colorMode": "cell",
+          "invert": true
+        },
+        {
+          "pattern": "Value #C",
+          "type": "number",
+          "alias": "Critical Warning",
+          "thresholds": [
+            "0.5",
+            "1"
+          ],
+          "colorMode": "cell"
+        },
+        {
+          "pattern": "Value #D",
+          "type": "number",
+          "alias": "Media Errors",
+          "thresholds": [
+            "0.5",
+            "1"
+          ],
+          "colorMode": "cell"
+        },
+        {
+          "pattern": "Value #E",
+          "type": "number",
+          "alias": "Unsafe Shutdowns"
+        },
+        {
+          "pattern": "Value #F",
+          "type": "number",
+          "alias": "Power On Hours",
+          "unit": "h"
+        }
+      ],
+      "transform": "table"
+    },
+    {
+      "id": 7,
+      "title": "IOPS - Read Commands",
+      "type": "graph",
+      "gridPos": {
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(nvme_host_read_commands_total[5m])",
+          "legendFormat": "{{device}} Read IOPS",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Read IOPS",
+          "format": "iops",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "avg": true,
+        "max": true,
+        "alignAsTable": true
+      }
+    },
+    {
+      "id": 8,
+      "title": "IOPS - Write Commands",
+      "type": "graph",
+      "gridPos": {
+        "x": 12,
+        "y": 32,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "rate(nvme_host_write_commands_total[5m])",
+          "legendFormat": "{{device}} Write IOPS",
+          "refId": "A"
+        }
+      ],
+      "yaxes": [
+        {
+          "label": "Write IOPS",
+          "format": "iops",
+          "logBase": 1
+        },
+        {
+          "show": false
+        }
+      ],
+      "xaxis": {
+        "show": true
+      },
+      "lines": true,
+      "fill": 1,
+      "linewidth": 2,
+      "legend": {
+        "show": true,
+        "values": true,
+        "current": true,
+        "avg": true,
+        "max": true,
+        "alignAsTable": true
+      }
+    }
+  ]
+}

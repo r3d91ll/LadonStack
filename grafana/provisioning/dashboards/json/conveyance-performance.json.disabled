@@ -1,0 +1,155 @@
+{
+  "dashboard": {
+    "title": "Conveyance Framework - Performance",
+    "tags": ["conveyance", "performance"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Database Latency (Unix Socket)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(api_request_duration_seconds_bucket{endpoint=~\"/nodes.*\"}[5m])) * 1000",
+            "legendFormat": "p50 latency (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(api_request_duration_seconds_bucket{endpoint=~\"/nodes.*\"}[5m])) * 1000",
+            "legendFormat": "p95 latency (ms)"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(api_request_duration_seconds_bucket{endpoint=~\"/nodes.*\"}[5m])) * 1000",
+            "legendFormat": "p99 latency (ms)"
+          }
+        ],
+        "yaxes": [
+          {"label": "Latency (ms)", "format": "ms"},
+          {"show": false}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [1.0], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "last"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "name": "Database latency alert",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 2,
+        "title": "R Score Computation Time",
+        "type": "heatmap",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(r_computation_duration_seconds_bucket[5m])",
+            "legendFormat": "{{le}}"
+          }
+        ],
+        "dataFormat": "tsbuckets",
+        "yAxis": {"format": "s"}
+      },
+      {
+        "id": 3,
+        "title": "C_pair Score Distribution",
+        "type": "histogram",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, rate(c_pair_computation_duration_seconds_bucket[5m]))",
+            "legendFormat": "Median C_pair computation"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "API Request Rate",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(api_requests_total[5m])",
+            "legendFormat": "{{endpoint}} - {{method}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Requests/sec", "format": "reqps"},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "PostgreSQL Connections",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "pg_stat_database_numbackends{datname=\"conveyance\"}",
+            "legendFormat": "Active connections"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "System CPU Usage",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "CPU Usage %"
+          }
+        ],
+        "yaxes": [
+          {"label": "CPU %", "format": "percent", "max": 100, "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "RAM Disk Usage",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "(node_filesystem_size_bytes{mountpoint=\"/mnt/ramdisk\"} - node_filesystem_avail_bytes{mountpoint=\"/mnt/ramdisk\"}) / node_filesystem_size_bytes{mountpoint=\"/mnt/ramdisk\"} * 100",
+            "legendFormat": "RAM Disk Usage %"
+          }
+        ],
+        "yaxes": [
+          {"label": "Usage %", "format": "percent", "max": 100, "min": 0},
+          {"show": false}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Learning Trajectory (Example)",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 24, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "learning_trajectory_mean_c_pair",
+            "legendFormat": "{{learner_id}} - Week {{week}}"
+          }
+        ],
+        "yaxes": [
+          {"label": "Mean C_pair", "format": "short"},
+          {"show": false}
+        ]
+      }
+    ],
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s"
+  }
+}

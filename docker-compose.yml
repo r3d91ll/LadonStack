@@ -1,0 +1,158 @@
+networks:
+  ladon:
+    driver: bridge
+    name: ladon
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  ladon_prometheus_data:
+    name: ladon_prometheus_data
+  ladon_grafana_data:
+    name: ladon_grafana_data
+  ladon_arize_data:
+    name: ladon_arize_data
+
+services:
+
+  # NVIDIA DCGM exporter for GPU metrics
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.6-3.4.2-ubuntu22.04
+    container_name: dcgm-exporter
+    restart: unless-stopped
+    networks:
+      - ladon
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DCGM_EXPORTER_LISTEN=:9400
+      - DCGM_EXPORTER_KUBERNETES=false
+    ports:
+      - "9400:9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:9400/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Prometheus - Metrics database
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    restart: unless-stopped
+    networks:
+      - ladon
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - ladon_prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Node Exporter - Hardware, OS metrics
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: node-exporter
+    restart: unless-stopped
+    networks:
+      - ladon
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /var/lib/node_exporter:/node_exporter_metrics:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.textfile.directory=/node_exporter_metrics'
+      - '--collector.textfile'
+    ports:
+      - "9100:9100"
+
+  # Process Exporter - Process metrics
+  process-exporter:
+    image: ncabatoff/process-exporter:0.7.10
+    container_name: process-exporter
+    restart: unless-stopped
+    networks:
+      - ladon
+    privileged: true
+    volumes:
+      - ./prometheus/process-exporter.yml:/config/process-exporter.yml:ro
+      - /proc:/host/proc:ro
+    command:
+      - '--procfs=/host/proc'
+      - '--config.path=/config/process-exporter.yml'
+    ports:
+      - "9256:9256"
+
+  # Grafana - Visualization
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    restart: unless-stopped
+    networks:
+      - ladon
+    volumes:
+      - ladon_grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./scripts:/scripts:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_CSRF_ALWAYS_CHECK=false
+      - GF_SECURITY_FORCE_DEFAULT_ADMIN_PASSWORD_CHANGE=false
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Arize Phoenix - ML Model Monitoring
+  arize-phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: arize-phoenix
+    restart: unless-stopped
+    networks:
+      - ladon
+    environment:
+      - PHOENIX_WORKING_DIR=/mnt/data
+    volumes:
+      - ladon_arize_data:/mnt/data
+    ports:
+      - "8084:6006"     # Phoenix UI
+      - "4317:4317"     # OTLP gRPC
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:6006/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
