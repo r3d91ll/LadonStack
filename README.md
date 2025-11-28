@@ -1,4 +1,4 @@
-# LadonStack - Named after the hundred-headed dragon that guarded the golden apples of the Hesperides in Greek mythology
+# LadonStack
 
 ## A Note on Deployment Architecture
 
